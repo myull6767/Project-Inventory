@@ -1,0 +1,18 @@
+@import 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap';
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --color-primary: #1A1A1A;
+    --color-secondary: #0033CC;
+    --color-tertiary: #FF6600;
+    --color-neutral: #FAFAFA;
+    --color-surface: #FFFFFF;
+    --color-on-primary: #FFFFFF;
+}
