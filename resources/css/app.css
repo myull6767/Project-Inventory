@@ -1,6 +1,8 @@
 @import 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap';
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -14,5 +16,14 @@
     --color-tertiary: #FF6600;
     --color-neutral: #FAFAFA;
     --color-surface: #FFFFFF;
+    --color-on-primary: #FFFFFF;
+}
+
+.dark {
+    --color-primary: #EDEDED;
+    --color-secondary: #6699FF;
+    --color-tertiary: #FF8C38;
+    --color-neutral: #111318;
+    --color-surface: #1A1D24;
     --color-on-primary: #FFFFFF;
 }

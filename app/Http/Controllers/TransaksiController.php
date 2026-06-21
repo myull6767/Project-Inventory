@@ -16,8 +16,18 @@ class TransaksiController extends Controller
     {
         $barangs = Barang::all();
         $tokos = Toko::all();
+        $barangsJson = $barangs->map(function ($b) {
+            return [
+                'id' => $b->id,
+                'kode' => $b->kode_barang,
+                'nama' => $b->nama_barang,
+                'stok_gudang' => $b->stok_gudang,
+                'stok_packing' => $b->stok_packing,
+                'total_stok' => $b->total_stok,
+            ];
+        });
 
-        return view('transaksi.create', compact('barangs', 'tokos'));
+        return view('transaksi.create', compact('barangs', 'tokos', 'barangsJson'));
     }
 
     public function store(TransaksiRequest $request)
