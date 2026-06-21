@@ -67,12 +67,14 @@ class TransaksiController extends Controller
     public function history(Request $request)
     {
         $date = $request->input('date', now()->format('Y-m-d'));
+        $search = $request->input('search', '');
 
         $start = Carbon::parse($date, 'Asia/Jakarta')->startOfDay()->utc();
         $end = Carbon::parse($date, 'Asia/Jakarta')->endOfDay()->utc();
 
         $transaksis = TransaksiKeluar::with('barang', 'user')
             ->whereBetween('created_at', [$start, $end])
+            ->when($search, fn ($q) => $q->where('kode_toko_inputed', 'like', '%'.$search.'%'))
             ->latest()
             ->get();
 
@@ -82,7 +84,7 @@ class TransaksiController extends Controller
             ->take(30)
             ->get();
 
-        return view('transaksi.history', compact('transaksis', 'grouped', 'date'));
+        return view('transaksi.history', compact('transaksis', 'grouped', 'date', 'search'));
     }
 
     public function destroy($id)

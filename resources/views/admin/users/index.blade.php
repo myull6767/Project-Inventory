@@ -26,7 +26,7 @@
                 <td class="py-3 px-4 font-mono text-xs">{{ $user->role->name ?? '-' }}</td>
                 <td class="py-3 px-4 text-right flex items-center justify-end gap-2">
                     <a href="{{ route('admin.users.edit', $user) }}" class="py-1 px-2 font-mono text-xs rounded border border-secondary/20 text-secondary hover:bg-secondary/5">Edit</a>
-                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Hapus user {{ $user->name }}?')">
+                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" data-confirm="Hapus user {{ $user->name }}?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="py-1 px-2 font-mono text-xs rounded border border-red-200 text-red-400 hover:bg-red-50">Hapus</button>

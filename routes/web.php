@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::post('barang-masuk', [BarangMasukController::class, 'store'])->name('barang-masuk.store');
     Route::get('barang-masuk/packing', [BarangMasukController::class, 'createPacking'])->name('barang-masuk.packing');
     Route::post('barang-masuk/packing', [BarangMasukController::class, 'storePacking'])->name('barang-masuk.packing.store');
+    Route::get('barang-masuk/history', [BarangMasukController::class, 'history'])->name('barang-masuk.history');
+    Route::delete('barang-masuk/{barangMasuk}', [BarangMasukController::class, 'destroy'])->name('barang-masuk.destroy');
 
     Route::get('transaksi', [TransaksiController::class, 'create'])->name('transaksi.create');
     Route::post('transaksi', [TransaksiController::class, 'store'])->name('transaksi.store');

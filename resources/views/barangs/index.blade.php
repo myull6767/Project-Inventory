@@ -18,7 +18,7 @@
         </div>
         <div>
             <label for="sort" class="block font-mono text-xs text-primary/60 mb-1">Urut</label>
-            <select id="sort" name="sort" onchange="this.form.submit()"
+            <select id="sort" name="sort" data-auto-submit
                 class="px-3 py-2 border border-primary/20 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
                 <option value="">Terbaru</option>
                 <option value="nama" {{ request('sort') === 'nama' ? 'selected' : '' }}>Nama A-Z</option>
@@ -56,7 +56,7 @@
                 <td class="py-3 px-4 text-right font-mono text-xs">{{ $barang->stock_threshold }}</td>
                 <td class="py-3 px-4 text-right flex items-center justify-end gap-2">
                     <a href="{{ route('barangs.edit', $barang) }}" class="py-1 px-2 font-mono text-xs rounded border border-secondary/20 text-secondary hover:bg-secondary/5">Edit</a>
-                    <form method="POST" action="{{ route('barangs.destroy', $barang) }}" onsubmit="return confirm('Hapus barang {{ $barang->nama_barang }}?')">
+                    <form method="POST" action="{{ route('barangs.destroy', $barang) }}" data-confirm="Hapus barang {{ $barang->nama_barang }}?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="py-1 px-2 font-mono text-xs rounded border border-red-200 text-red-400 hover:bg-red-50">Hapus</button>

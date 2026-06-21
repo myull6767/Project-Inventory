@@ -24,7 +24,7 @@
                 <td class="py-3 px-4">{{ $toko->nama_toko }}</td>
                 <td class="py-3 px-4 text-right flex items-center justify-end gap-2">
                     <a href="{{ route('admin.tokos.edit', $toko) }}" class="py-1 px-2 font-mono text-xs rounded border border-secondary/20 text-secondary hover:bg-secondary/5">Edit</a>
-                    <form method="POST" action="{{ route('admin.tokos.destroy', $toko) }}" onsubmit="return confirm('Hapus toko {{ $toko->nama_toko }}?')">
+                    <form method="POST" action="{{ route('admin.tokos.destroy', $toko) }}" data-confirm="Hapus toko {{ $toko->nama_toko }}?">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="py-1 px-2 font-mono text-xs rounded border border-red-200 text-red-400 hover:bg-red-50">Hapus</button>
