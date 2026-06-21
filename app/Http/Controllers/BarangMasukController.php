@@ -15,8 +15,16 @@ class BarangMasukController extends Controller
     {
         $barangs = Barang::all();
         $suppliers = Supplier::all();
+        $barangsJson = $barangs->map(fn ($b) => [
+            'id' => $b->id,
+            'kode' => $b->kode_barang,
+            'nama' => $b->nama_barang,
+            'stok_gudang' => $b->stok_gudang,
+            'stok_packing' => $b->stok_packing,
+            'total_stok' => $b->total_stok,
+        ]);
 
-        return view('barang-masuk.create', compact('barangs', 'suppliers'));
+        return view('barang-masuk.create', compact('barangs', 'suppliers', 'barangsJson'));
     }
 
     public function store(BarangMasukRequest $request)
@@ -36,8 +44,16 @@ class BarangMasukController extends Controller
     public function createPacking()
     {
         $barangs = Barang::where('stok_gudang', '>', 0)->get();
+        $barangsJson = $barangs->map(fn ($b) => [
+            'id' => $b->id,
+            'kode' => $b->kode_barang,
+            'nama' => $b->nama_barang,
+            'stok_gudang' => $b->stok_gudang,
+            'stok_packing' => $b->stok_packing,
+            'total_stok' => $b->total_stok,
+        ]);
 
-        return view('barang-masuk.packing', compact('barangs'));
+        return view('barang-masuk.packing', compact('barangs', 'barangsJson'));
     }
 
     public function storePacking(BarangMasukRequest $request)
@@ -75,7 +91,7 @@ class BarangMasukController extends Controller
             ->whereBetween('created_at', [$start, $end])
             ->when($search, fn ($q) => $q->whereHas('barang', fn ($q) => $q->where('nama_barang', 'like', '%'.$search.'%')))
             ->latest()
-            ->get();
+            ->paginate(10);
 
         $grouped = BarangMasuk::selectRaw('DATE(created_at + INTERVAL 7 HOUR) as tanggal, COUNT(*) as total_transaksi, SUM(quantity) as total_quantity')
             ->groupBy('tanggal')
@@ -83,7 +99,11 @@ class BarangMasukController extends Controller
             ->take(30)
             ->get();
 
-        return view('barang-masuk.history', compact('barangMasuks', 'grouped', 'date', 'search'));
+        $totalQuantity = BarangMasuk::whereBetween('created_at', [$start, $end])
+            ->when($search, fn ($q) => $q->whereHas('barang', fn ($q) => $q->where('nama_barang', 'like', '%'.$search.'%')))
+            ->sum('quantity');
+
+        return view('barang-masuk.history', compact('barangMasuks', 'grouped', 'date', 'search', 'totalQuantity'));
     }
 
     public function destroy(BarangMasuk $barangMasuk)

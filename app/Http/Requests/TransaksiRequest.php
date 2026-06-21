@@ -14,9 +14,21 @@ class TransaksiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'barang_id' => ['required', 'exists:barangs,id'],
-            'quantity' => ['required', 'integer', 'min:1'],
             'kode_toko_inputed' => ['required', 'max:255'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.barang_id' => ['required', 'exists:barangs,id'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'items.required' => 'Minimal satu barang harus ditambahkan.',
+            'items.min' => 'Minimal satu barang harus ditambahkan.',
+            'items.*.barang_id.required' => 'Barang harus dipilih.',
+            'items.*.quantity.required' => 'Jumlah barang harus diisi.',
+            'items.*.quantity.min' => 'Jumlah barang minimal 1.',
         ];
     }
 }

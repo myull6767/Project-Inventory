@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\BarangMasuk;
+use App\Models\Transaksi;
 use App\Models\TransaksiKeluar;
 
 class DashboardController extends Controller
@@ -21,14 +22,14 @@ class DashboardController extends Controller
 
         $recentTransaksiKeluar = TransaksiKeluar::with('barang')
             ->latest()
-            ->take(5)
+            ->take(10)
             ->get();
 
         $totalBarang = $barangs->count();
         $totalBarangMasukBulanIni = BarangMasuk::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
-        $totalTransaksiBulanIni = TransaksiKeluar::whereMonth('created_at', now()->month)
+        $totalTransaksiBulanIni = Transaksi::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 

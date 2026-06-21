@@ -35,7 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::get('transaksi', [TransaksiController::class, 'create'])->name('transaksi.create');
     Route::post('transaksi', [TransaksiController::class, 'store'])->name('transaksi.store');
     Route::get('transaksi/history', [TransaksiController::class, 'history'])->name('transaksi.history');
-    Route::delete('transaksi/{id}', [TransaksiController::class, 'destroy'])->name('transaksi.destroy');
+    Route::get('transaksi/{transaksi}/cetak', [TransaksiController::class, 'cetak'])->name('transaksi.cetak');
+    Route::delete('transaksi/{transaksi}', [TransaksiController::class, 'destroy'])->name('transaksi.destroy');
 
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::resource('users', UserController::class);

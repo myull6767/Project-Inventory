@@ -69,8 +69,12 @@
             </div>
 
             <div class="mt-4 pt-3 border-t border-primary/10 flex justify-between font-mono text-xs text-primary">
-                <span>Total transaksi: {{ $barangMasuks->count() }}</span>
-                <span>Total item: {{ $barangMasuks->sum('quantity') }}</span>
+                <span>Total transaksi: {{ $barangMasuks->total() }}</span>
+                <span>Total item: {{ $totalQuantity }}</span>
+            </div>
+
+            <div class="mt-4">
+                {{ $barangMasuks->withQueryString()->links() }}
             </div>
             @endif
         </div>

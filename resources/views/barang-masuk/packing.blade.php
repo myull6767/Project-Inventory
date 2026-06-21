@@ -12,17 +12,13 @@
         <input type="hidden" name="type" value="packing">
 
         <div>
-            <label for="barang_id" class="font-mono text-xs text-primary/70 block mb-1.5">Barang</label>
-            <select id="barang_id" name="barang_id" required
+            <label for="barang_search" class="font-mono text-xs text-primary/70 block mb-1.5">Barang</label>
+            <input type="text" id="barang_search" autocomplete="off" required
+                placeholder="Ketik kode atau nama barang..."
                 class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
-                <option value="">— Pilih Barang —</option>
-                @foreach ($barangs as $barang)
-                <option value="{{ $barang->id }}" data-gudang="{{ $barang->stok_gudang }}" {{ old('barang_id') == $barang->id ? 'selected' : '' }}>
-                    {{ $barang->kode_barang }} — {{ $barang->nama_barang }} (Gudang: {{ $barang->stok_gudang }})
-                </option>
-                @endforeach
-            </select>
-            <p id="stok-gudang-info" class="font-mono text-xs text-primary/50 mt-1"></p>
+            <input type="hidden" name="barang_id" id="barang_id" value="{{ old('barang_id') }}">
+            <div id="barang-dropdown" class="hidden mt-1 border border-primary/20 rounded-md bg-surface shadow-lg max-h-48 overflow-y-auto"></div>
+            <div id="stok-gudang-info" class="font-mono text-xs text-primary/50 mt-1"></div>
         </div>
 
         <div>
@@ -38,5 +34,6 @@
     </form>
 </div>
 
+<script id="barangs-data" type="application/json" nonce="{{ $cspNonce ?? '' }}">@json($barangsJson)</script>
 @vite(['resources/js/barang-masuk.js'])
 @endsection

@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Barang;
+use App\Models\Transaksi;
 use App\Models\TransaksiKeluar;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -10,15 +12,15 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TransaksiKeluarFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = TransaksiKeluar::class;
+
     public function definition(): array
     {
         return [
-            //
+            'transaksi_id' => Transaksi::factory(),
+            'barang_id' => Barang::factory(),
+            'quantity' => fake()->numberBetween(1, 100),
+            'stok_awal_snapshot' => fn (array $attrs) => $attrs['quantity'] + fake()->numberBetween(10, 500),
         ];
     }
 }

@@ -23,7 +23,7 @@
                 <a href="{{ route('transaksi.history', ['date' => $g->tanggal]) }}"
                     class="flex justify-between items-center p-2 rounded {{ $date === $g->tanggal ? 'bg-secondary/10' : 'hover:bg-neutral' }}">
                     <span class="font-mono text-xs text-primary">{{ \Carbon\Carbon::parse($g->tanggal)->format('d M Y') }}</span>
-                    <span class="font-mono text-xs text-primary/60">{{ $g->total_quantity }} item ({{ $g->total_transaksi }} tx)</span>
+                    <span class="font-mono text-xs text-primary/60">{{ $g->total_transaksi }} transaksi</span>
                 </a>
                 @empty
                 <p class="font-mono text-xs text-primary/50">Belum ada transaksi.</p>
@@ -41,35 +41,54 @@
             @if ($transaksis->isEmpty())
             <p class="font-mono text-xs text-primary/50">Tidak ada transaksi pada tanggal ini.</p>
             @else
-            <div class="space-y-3">
-                @foreach ($transaksis as $t)
-                <div class="flex justify-between items-center p-3 border border-primary/5 rounded">
-                    <div class="flex-1">
-                        <span class="font-mono text-xs text-primary">{{ $t->barang->nama_barang ?? '-' }}</span>
-                        <span class="font-mono text-[10px] text-primary/40 ml-2">{{ $t->barang->kode_barang ?? '' }}</span>
-                        <div class="font-mono text-[10px] text-primary/40 mt-0.5">
-                            Stok awal: {{ $t->stok_awal_snapshot }} → Toko: {{ $t->kode_toko_inputed }}
-                            <span class="text-primary/30 ml-1">{{ $t->created_at->format('H:i') }}</span>
-                            @if ($t->user)
-                            <span class="ml-2 text-secondary/50">oleh {{ $t->user->name }}</span>
+            <div class="space-y-4">
+                @foreach ($transaksis as $transaksi)
+                <div class="border border-primary/5 rounded overflow-hidden">
+                    <div class="flex justify-between items-center px-3 py-2 bg-neutral/50">
+                        <div class="font-mono text-[10px] text-primary/50">
+                            <span class="text-secondary/70">{{ $transaksi->created_at->format('H:i') }}</span>
+                            <span class="ml-2">Toko: {{ $transaksi->kode_toko_inputed }}</span>
+                            @if ($transaksi->user)
+                            <span class="ml-2 text-secondary/50">oleh {{ $transaksi->user->name }}</span>
                             @endif
                         </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('transaksi.cetak', $transaksi) }}" target="_blank"
+                                class="py-1 px-2 font-mono text-xs rounded border border-secondary/20 text-secondary hover:bg-secondary/5 transition-colors">
+                                Cetak
+                            </a>
+                            <form method="POST" action="{{ route('transaksi.destroy', $transaksi) }}" data-confirm="Hapus seluruh transaksi ini?">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="py-1 px-2 font-mono text-xs rounded border border-red-200 text-red-400 hover:bg-red-50 transition-colors">Hapus</button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="font-mono text-xs text-tertiary">{{ $t->quantity }}</span>
-                         <form method="POST" action="{{ route('transaksi.destroy', $t->id) }}" data-confirm="Hapus transaksi ini?">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="py-1 px-2 font-mono text-xs rounded border border-red-200 text-red-400 hover:bg-red-50">Hapus</button>
-                        </form>
+                    <div class="divide-y divide-primary/5">
+                        @foreach ($transaksi->details as $detail)
+                        <div class="flex justify-between items-center px-3 py-2">
+                            <div class="flex-1">
+                                <span class="font-mono text-xs text-primary">{{ $detail->barang->nama_barang ?? '-' }}</span>
+                                <span class="font-mono text-[10px] text-primary/40 ml-2">{{ $detail->barang->kode_barang ?? '' }}</span>
+                                <div class="font-mono text-[10px] text-primary/40 mt-0.5">
+                                    Stok awal: {{ $detail->stok_awal_snapshot }}
+                                </div>
+                            </div>
+                            <span class="font-mono text-xs text-tertiary">{{ $detail->quantity }}</span>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
                 @endforeach
             </div>
 
             <div class="mt-4 pt-3 border-t border-primary/10 flex justify-between font-mono text-xs text-primary">
-                <span>Total transaksi: {{ $transaksis->count() }}</span>
-                <span>Total item: {{ $transaksis->sum('quantity') }}</span>
+                <span>Total transaksi: {{ $transaksis->total() }}</span>
+                <span>Total item: {{ $totalQuantity }}</span>
+            </div>
+
+            <div class="mt-4">
+                {{ $transaksis->withQueryString()->links() }}
             </div>
             @endif
         </div>
