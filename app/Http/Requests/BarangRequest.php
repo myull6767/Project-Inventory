@@ -20,6 +20,7 @@ class BarangRequest extends FormRequest
             'stok_gudang' => ['nullable', 'integer', 'min:0'],
             'stok_packing' => ['nullable', 'integer', 'min:0'],
             'stock_threshold' => ['nullable', 'integer', 'min:0'],
+            'harga' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

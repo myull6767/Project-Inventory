@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['transaksi_id', 'barang_id', 'quantity', 'stok_awal_snapshot'])]
+#[Fillable(['transaksi_id', 'barang_id', 'quantity', 'stok_awal_snapshot', 'harga_snapshot'])]
 class TransaksiKeluar extends Model
 {
     /** @use HasFactory<TransaksiKeluarFactory> */

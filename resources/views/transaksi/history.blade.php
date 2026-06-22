@@ -8,7 +8,7 @@
 <form method="GET" action="{{ route('transaksi.history') }}" class="mb-6 flex flex-wrap gap-3">
     <input type="date" name="date" value="{{ $date }}" data-auto-submit
         class="px-3 py-2 border border-primary/20 rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
-    <input type="text" name="search" value="{{ $search }}" placeholder="Cari kode toko..." autocomplete="off"
+    <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama pelanggan..." autocomplete="off"
         class="px-3 py-2 border border-primary/20 rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary flex-1 min-w-[180px]">
     <button type="submit"
         class="px-4 py-2 bg-tertiary text-on-primary font-mono text-sm rounded-md hover:opacity-90 transition-opacity">Cari</button>
@@ -47,7 +47,7 @@
                     <div class="flex justify-between items-center px-3 py-2 bg-neutral/50">
                         <div class="font-mono text-[10px] text-primary/50">
                             <span class="text-secondary/70">{{ $transaksi->created_at->format('H:i') }}</span>
-                            <span class="ml-2">Toko: {{ $transaksi->kode_toko_inputed }}</span>
+                            <span class="ml-2">Pelanggan: {{ $transaksi->nama_pelanggan }}</span>
                             @if ($transaksi->user)
                             <span class="ml-2 text-secondary/50">oleh {{ $transaksi->user->name }}</span>
                             @endif

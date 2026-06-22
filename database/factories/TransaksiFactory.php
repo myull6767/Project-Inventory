@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Toko;
 use App\Models\Transaksi;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -16,7 +17,7 @@ class TransaksiFactory extends Factory
     public function definition(): array
     {
         return [
-            'kode_toko_inputed' => 'TKO-'.str_pad(fake()->unique()->numberBetween(1, 999), 2, '0', STR_PAD_LEFT),
+            'toko_id' => Toko::factory(),
             'user_id' => User::factory(),
         ];
     }

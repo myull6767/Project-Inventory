@@ -2,26 +2,23 @@
 
 namespace App\Models;
 
-use Database\Factories\BarangMasukFactory;
+use Database\Factories\BarangTokoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-#[Fillable(['barang_id', 'supplier_id', 'quantity', 'type', 'toko_id'])]
-class BarangMasuk extends Model
+#[Fillable(['barang_id', 'toko_id', 'stok_gudang', 'stok_packing', 'total_stok', 'stock_threshold', 'harga'])]
+class BarangToko extends Pivot
 {
-    /** @use HasFactory<BarangMasukFactory> */
+    /** @use HasFactory<BarangTokoFactory> */
     use HasFactory;
+
+    public $incrementing = true;
 
     public function barang(): BelongsTo
     {
         return $this->belongsTo(Barang::class);
-    }
-
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class);
     }
 
     public function toko(): BelongsTo

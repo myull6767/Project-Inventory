@@ -25,19 +25,25 @@
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="stok_gudang" class="font-mono text-xs text-primary/70 block mb-1.5">Stok Gudang</label>
-                <input type="number" id="stok_gudang" name="stok_gudang" value="{{ old('stok_gudang', $barang->stok_gudang) }}" min="0"
+                <input type="number" id="stok_gudang" name="stok_gudang" value="{{ old('stok_gudang', $stok->stok_gudang ?? 0) }}" min="0"
                     class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
             </div>
             <div>
                 <label for="stok_packing" class="font-mono text-xs text-primary/70 block mb-1.5">Stok Packing</label>
-                <input type="number" id="stok_packing" name="stok_packing" value="{{ old('stok_packing', $barang->stok_packing) }}" min="0"
+                <input type="number" id="stok_packing" name="stok_packing" value="{{ old('stok_packing', $stok->stok_packing ?? 0) }}" min="0"
                     class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
             </div>
         </div>
 
         <div>
             <label for="stock_threshold" class="font-mono text-xs text-primary/70 block mb-1.5">Stock Threshold</label>
-            <input type="number" id="stock_threshold" name="stock_threshold" value="{{ old('stock_threshold', $barang->stock_threshold) }}" min="0"
+            <input type="number" id="stock_threshold" name="stock_threshold" value="{{ old('stock_threshold', $stok->stock_threshold ?? 0) }}" min="0"
+                class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
+        </div>
+
+        <div>
+            <label for="harga" class="font-mono text-xs text-primary/70 block mb-1.5">Harga</label>
+            <input type="number" id="harga" name="harga" value="{{ old('harga', $stok->harga ?? 0) }}" min="0"
                 class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
         </div>
 

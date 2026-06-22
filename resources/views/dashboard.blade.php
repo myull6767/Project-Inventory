@@ -27,11 +27,14 @@
         <ul class="space-y-2">
             @foreach ($stockAlerts as $barang)
             <li class="flex justify-between items-center p-2 bg-tertiary/5 rounded">
-                <span class="font-mono text-xs text-primary">{{ $barang->nama_barang }}</span>
+                <span class="font-mono text-xs text-primary">{{ $barang->barang?->nama_barang ?? '-' }}</span>
                 <span class="font-mono text-xs text-tertiary">{{ $barang->total_stok }}</span>
             </li>
             @endforeach
         </ul>
+        <div class="mt-4">
+            {{ $stockAlerts->links() }}
+        </div>
         @endif
     </div>
 

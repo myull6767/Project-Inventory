@@ -15,9 +15,26 @@
         </div>
 
         <div class="bg-surface border border-secondary/10 rounded-lg p-8">
+            @if (session('warning'))
+            <div class="mb-4 p-3 bg-tertiary/10 border border-tertiary/30 rounded-md text-xs text-primary">
+                {{ session('warning') }}
+            </div>
+            @endif
+
             <form method="POST" action="{{ route('login') }}">
                 @csrf
-                <div class="mb-5">
+                <div class="mb-4">
+                    <label for="toko_id" class="font-mono text-xs text-primary/70 block mb-1.5">Toko</label>
+                    <select id="toko_id" name="toko_id" required
+                        class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
+                        <option value="">— Pilih Toko —</option>
+                        @foreach ($tokos as $toko)
+                        <option value="{{ $toko->id }}" {{ old('toko_id') == $toko->id ? 'selected' : '' }}>{{ $toko->kode_toko }} — {{ $toko->nama_toko }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-4">
                     <label for="email" class="font-mono text-xs text-primary/70 block mb-1.5">Email</label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
                         class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">

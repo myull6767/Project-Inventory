@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AddSecurityHeaders;
+use App\Http\Middleware\EnsureTokoSelected;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(AddSecurityHeaders::class);
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'toko' => EnsureTokoSelected::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

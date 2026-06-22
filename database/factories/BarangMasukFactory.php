@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Barang;
 use App\Models\BarangMasuk;
+use App\Models\Supplier;
+use App\Models\Toko;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,15 +13,18 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class BarangMasukFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = BarangMasuk::class;
+
     public function definition(): array
     {
+        $type = fake()->randomElement(['supplier', 'packing']);
+
         return [
-            //
+            'barang_id' => Barang::factory(),
+            'supplier_id' => $type === 'supplier' ? Supplier::factory() : null,
+            'quantity' => fake()->numberBetween(1, 100),
+            'type' => $type,
+            'toko_id' => Toko::factory(),
         ];
     }
 }

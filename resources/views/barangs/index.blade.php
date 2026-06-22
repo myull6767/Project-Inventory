@@ -42,6 +42,7 @@
                 <th class="text-right py-3 px-4">Packing</th>
                 <th class="text-right py-3 px-4">Total</th>
                 <th class="text-right py-3 px-4">Threshold</th>
+                <th class="text-right py-3 px-4">Harga</th>
                 <th class="text-right py-3 px-4">Aksi</th>
             </tr>
         </thead>
@@ -54,6 +55,7 @@
                 <td class="py-3 px-4 text-right font-mono text-xs">{{ $barang->stok_packing }}</td>
                 <td class="py-3 px-4 text-right font-mono text-xs {{ $barang->total_stok <= $barang->stock_threshold ? 'text-tertiary' : '' }}">{{ $barang->total_stok }}</td>
                 <td class="py-3 px-4 text-right font-mono text-xs">{{ $barang->stock_threshold }}</td>
+                <td class="py-3 px-4 text-right font-mono text-xs">Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
                 <td class="py-3 px-4 text-right flex items-center justify-end gap-2">
                     <a href="{{ route('barangs.edit', $barang) }}" class="py-1 px-2 font-mono text-xs rounded border border-secondary/20 text-secondary hover:bg-secondary/5">Edit</a>
                     <form method="POST" action="{{ route('barangs.destroy', $barang) }}" data-confirm="Hapus barang {{ $barang->nama_barang }}?">
@@ -65,7 +67,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="py-6 text-center text-xs text-primary/50">Belum ada barang.</td>
+                <td colspan="8" class="py-6 text-center text-xs text-primary/50">Belum ada barang.</td>
             </tr>
             @endforelse
         </tbody>

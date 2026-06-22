@@ -6,8 +6,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var container = document.getElementById('items-container');
     var addBtn = document.getElementById('add-row');
     var template = document.getElementById('item-row-template');
-    var tokoSelect = document.getElementById('kode_toko_select');
-    var tokoInput = document.getElementById('kode_toko_inputed');
 
     var rowIndex = 0;
 
@@ -93,14 +91,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (addBtn) {
         addBtn.addEventListener('click', addRow);
-    }
-
-    if (tokoSelect && tokoInput) {
-        tokoSelect.addEventListener('change', function () {
-            if (this.value) {
-                tokoInput.value = this.value;
-            }
-        });
     }
 
     addRow();

@@ -40,6 +40,12 @@
                 class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
         </div>
 
+        <div>
+            <label for="harga" class="font-mono text-xs text-primary/70 block mb-1.5">Harga</label>
+            <input type="number" id="harga" name="harga" value="{{ old('harga', 0) }}" min="0" autocomplete="off"
+                class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
+        </div>
+
         <button type="submit"
             class="py-2.5 px-6 bg-tertiary text-on-primary font-mono text-sm rounded-md hover:opacity-90 transition-opacity">
             Simpan

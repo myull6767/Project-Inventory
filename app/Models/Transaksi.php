@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['kode_toko_inputed', 'user_id'])]
+#[Fillable(['toko_id', 'user_id', 'nama_pelanggan'])]
 class Transaksi extends Model
 {
     /** @use HasFactory<TransaksiFactory> */
@@ -18,6 +18,11 @@ class Transaksi extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function toko(): BelongsTo
+    {
+        return $this->belongsTo(Toko::class);
     }
 
     public function details(): HasMany

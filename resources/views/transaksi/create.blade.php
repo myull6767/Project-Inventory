@@ -12,21 +12,17 @@
     </div>
     @endif
 
+    <div class="mb-6 p-4 bg-secondary/5 border border-secondary/20 rounded-md font-mono text-xs text-primary/70">
+        Toko: <span class="text-secondary font-medium">{{ $currentToko->nama_toko ?? '' }}</span>
+    </div>
+
     <form method="POST" action="{{ route('transaksi.store') }}" class="bg-surface border border-secondary/10 rounded-lg p-6 space-y-5">
         @csrf
 
         <div>
-            <label class="font-mono text-xs text-primary/70 block mb-1.5">Kode Toko</label>
-            <select id="kode_toko_select"
+            <label for="nama_pelanggan" class="font-mono text-xs text-primary/70 block mb-1.5">Nama Pelanggan</label>
+            <input type="text" id="nama_pelanggan" name="nama_pelanggan" value="{{ old('nama_pelanggan') }}" required autocomplete="off"
                 class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary">
-                <option value="">— Pilih Toko —</option>
-                @foreach ($tokos as $toko)
-                <option value="{{ $toko->kode_toko }}">{{ $toko->kode_toko }} — {{ $toko->nama_toko }}</option>
-                @endforeach
-            </select>
-            <input type="text" id="kode_toko_inputed" name="kode_toko_inputed" value="{{ old('kode_toko_inputed') }}" required autocomplete="off"
-                placeholder="Contoh: TKO-01 atau TKO-01-2"
-                class="w-full px-3 py-2.5 border border-primary/20 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary mt-2">
         </div>
 
         <div>

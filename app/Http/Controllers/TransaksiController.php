@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TransaksiRequest;
-use App\Models\Barang;
-use App\Models\Toko;
+use App\Models\BarangToko;
 use App\Models\Transaksi;
 use App\Models\TransaksiKeluar;
 use Carbon\Carbon;
@@ -16,63 +15,66 @@ class TransaksiController extends Controller
 {
     public function create()
     {
-        $barangs = Barang::all();
-        $tokos = Toko::all();
-        $barangsJson = $barangs->map(function ($b) {
-            return [
-                'id' => $b->id,
-                'kode' => $b->kode_barang,
-                'nama' => $b->nama_barang,
-                'stok_gudang' => $b->stok_gudang,
-                'stok_packing' => $b->stok_packing,
-                'total_stok' => $b->total_stok,
-            ];
-        });
+        $tokoId = session('toko_id');
+        $barangToko = BarangToko::with('barang')->where('toko_id', $tokoId)->get();
+        $barangsJson = $barangToko->filter(fn ($bt) => $bt->barang)->map(fn ($bt) => [
+            'id' => $bt->barang->id,
+            'kode' => $bt->barang->kode_barang,
+            'nama' => $bt->barang->nama_barang,
+            'stok_gudang' => $bt->stok_gudang,
+            'stok_packing' => $bt->stok_packing,
+            'total_stok' => $bt->total_stok,
+        ])->values();
 
-        return view('transaksi.create', compact('barangsJson', 'tokos'));
+        return view('transaksi.create', compact('barangsJson'));
     }
 
     public function store(TransaksiRequest $request)
     {
         $data = $request->validated();
+        $tokoId = session('toko_id');
 
-        DB::transaction(function () use ($data) {
+        DB::transaction(function () use ($data, $tokoId) {
             $transaksi = Transaksi::create([
-                'kode_toko_inputed' => $data['kode_toko_inputed'],
+                'toko_id' => $tokoId,
                 'user_id' => auth()->id(),
+                'nama_pelanggan' => $data['nama_pelanggan'],
             ]);
 
             foreach ($data['items'] as $item) {
-                $barang = Barang::findOrFail($item['barang_id']);
+                $pivot = BarangToko::where('barang_id', $item['barang_id'])
+                    ->where('toko_id', $tokoId)
+                    ->firstOrFail();
 
-                if ($item['quantity'] > $barang->total_stok) {
+                if ($item['quantity'] > $pivot->total_stok) {
                     throw ValidationException::withMessages([
                         'items.'.array_search($item, $data['items']).'.quantity' => __('Jumlah melebihi stok yang tersedia untuk :barang. Total stok saat ini: :stok', [
-                            'barang' => $barang->nama_barang,
-                            'stok' => $barang->total_stok,
+                            'barang' => $pivot->barang->nama_barang,
+                            'stok' => $pivot->total_stok,
                         ]),
                     ]);
                 }
 
-                if ($item['quantity'] > $barang->stok_packing) {
+                if ($item['quantity'] > $pivot->stok_packing) {
                     throw ValidationException::withMessages([
                         'items.'.array_search($item, $data['items']).'.quantity' => __('Stok packing tidak mencukupi untuk :barang. Stok packing saat ini: :stok. Transfer stok dari Gudang ke Packing terlebih dahulu.', [
-                            'barang' => $barang->nama_barang,
-                            'stok' => $barang->stok_packing,
+                            'barang' => $pivot->barang->nama_barang,
+                            'stok' => $pivot->stok_packing,
                         ]),
                     ]);
                 }
 
-                $stokAwalSnapshot = $barang->total_stok;
+                $stokAwalSnapshot = $pivot->total_stok;
 
-                $barang->decrement('stok_packing', $item['quantity']);
-                $barang->decrement('total_stok', $item['quantity']);
+                $pivot->decrement('stok_packing', $item['quantity']);
+                $pivot->decrement('total_stok', $item['quantity']);
 
                 TransaksiKeluar::create([
                     'transaksi_id' => $transaksi->id,
-                    'barang_id' => $barang->id,
+                    'barang_id' => $item['barang_id'],
                     'quantity' => $item['quantity'],
                     'stok_awal_snapshot' => $stokAwalSnapshot,
+                    'harga_snapshot' => $pivot->harga,
                 ]);
             }
         });
@@ -82,26 +84,30 @@ class TransaksiController extends Controller
 
     public function history(Request $request)
     {
+        $tokoId = session('toko_id');
         $date = $request->input('date', now()->format('Y-m-d'));
         $search = $request->input('search', '');
 
         $start = Carbon::parse($date, 'Asia/Jakarta')->startOfDay()->utc();
         $end = Carbon::parse($date, 'Asia/Jakarta')->endOfDay()->utc();
 
-        $transaksis = Transaksi::with('details.barang', 'user')
+        $transaksis = Transaksi::with('details.barang', 'user', 'toko')
+            ->where('toko_id', $tokoId)
             ->whereBetween('created_at', [$start, $end])
-            ->when($search, fn ($q) => $q->where('kode_toko_inputed', 'like', '%'.$search.'%'))
+            ->when($search, fn ($q) => $q->where('nama_pelanggan', 'like', '%'.$search.'%'))
             ->latest()
             ->paginate(10);
 
         $grouped = Transaksi::selectRaw('DATE(created_at + INTERVAL 7 HOUR) as tanggal, COUNT(*) as total_transaksi')
+            ->where('toko_id', $tokoId)
             ->groupBy('tanggal')
             ->orderBy('tanggal', 'desc')
             ->take(30)
             ->get();
 
-        $totalQuantity = TransaksiKeluar::whereHas('transaksi', fn ($q) => $q->whereBetween('created_at', [$start, $end])
-            ->when($search, fn ($q) => $q->where('kode_toko_inputed', 'like', '%'.$search.'%'))
+        $totalQuantity = TransaksiKeluar::whereHas('transaksi', fn ($q) => $q->where('toko_id', $tokoId)
+            ->whereBetween('created_at', [$start, $end])
+            ->when($search, fn ($q) => $q->where('nama_pelanggan', 'like', '%'.$search.'%'))
         )->sum('quantity');
 
         return view('transaksi.history', compact('transaksis', 'grouped', 'date', 'search', 'totalQuantity'));
@@ -109,7 +115,7 @@ class TransaksiController extends Controller
 
     public function cetak(Transaksi $transaksi)
     {
-        $transaksi->load('details.barang', 'user');
+        $transaksi->load('details.barang', 'user', 'toko');
 
         return view('transaksi.cetak', compact('transaksi'));
     }
