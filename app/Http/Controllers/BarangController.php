@@ -48,17 +48,23 @@ class BarangController extends Controller
     public function store(BarangRequest $request)
     {
         $data = $request->validated();
-        $barang = Barang::create([
-            'kode_barang' => $data['kode_barang'],
-            'nama_barang' => $data['nama_barang'],
-        ]);
+        $tokoId = session('toko_id');
+
+        $barang = Barang::firstOrCreate(
+            ['kode_barang' => $data['kode_barang']],
+            ['nama_barang' => $data['nama_barang']],
+        );
+
+        if (BarangToko::where('barang_id', $barang->id)->where('toko_id', $tokoId)->exists()) {
+            return back()->withErrors(['kode_barang' => 'Barang sudah terdaftar di toko ini.'])->withInput();
+        }
 
         $stokGudang = (int) ($data['stok_gudang'] ?? 0);
         $stokPacking = (int) ($data['stok_packing'] ?? 0);
 
         BarangToko::create([
             'barang_id' => $barang->id,
-            'toko_id' => session('toko_id'),
+            'toko_id' => $tokoId,
             'stok_gudang' => $stokGudang,
             'stok_packing' => $stokPacking,
             'total_stok' => $stokGudang + $stokPacking,
@@ -66,7 +72,11 @@ class BarangController extends Controller
             'harga' => (int) ($data['harga'] ?? 0),
         ]);
 
-        return redirect()->route('barangs.index')->with('success', 'Barang berhasil ditambahkan.');
+        $msg = $barang->wasRecentlyCreated
+            ? 'Barang berhasil ditambahkan.'
+            : 'Barang berhasil ditambahkan ke toko ini.';
+
+        return redirect()->route('barangs.index')->with('success', $msg);
     }
 
     public function edit(Barang $barang)

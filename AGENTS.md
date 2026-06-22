@@ -20,18 +20,21 @@
 | `php artisan make:model -m -c --resource --requests --policy` | Default model creation pattern |
 | `./vendor/bin/pint` | Lint PHP code (Laravel Pint, default config) |
 
-Order: `lint (pint) -> test`
+**Order:** `lint (pint) -> test`
 
 ## Architecture
 
-- **Multi-toko**: 3 stores (ANNA WIFI, PELAUKAN, VILLA KENCANA). User selects toko at login; stored in `session('toko_id')`. `EnsureTokoSelected` middleware (`toko` alias) on all auth routes.
-- **Per-toko stock**: `barang_toko` pivot table `(barang_id, toko_id, stok_gudang, stok_packing, total_stok, stock_threshold)` — unique per `(barang_id, toko_id)`. `Barang` is a master product catalog (no stock columns). Query stock via `BarangToko` model or `Barang::tokos()`.
+- **Multi-toko**: 3 stores (ANNA WIFI, PELAUKAN, VILLA KENCANA). User selects toko at login (dropdown); stored in `session('toko_id')`. `EnsureTokoSelected` middleware (`toko` alias) on all auth routes.
+- **Per-toko stock**: `barang_toko` pivot table `(barang_id, toko_id, stok_gudang, stok_packing, total_stok, stock_threshold, harga)` — unique per `(barang_id, toko_id)`. `Barang` is a master product catalog (no stock columns). Query stock via `BarangToko` model or `Barang::tokos()`. `BarangToko` extends `Pivot` with `$incrementing = true` and has its own Factory.
 - **RBAC**: `roles` table, `role_id` FK on `users`, `admin` middleware alias (`EnsureUserIsAdmin`), `User::isAdmin()` checks `role->name === 'admin'`
-- **Stock flow**: Inbound `type='supplier'` adds to `stok_gudang` + `total_stok`; `type='packing'` moves `stok_gudang` → `stok_packing` (`total_stok` unchanged). Outbound deducts `stok_packing` + `total_stok`; requires both `total_stok` AND `stok_packing` >= quantity. All stock operations scoped by `toko_id`.
+- **Stock flow**:
+  - Inbound `type='supplier'` adds to `stok_gudang` + `total_stok`
+  - Inbound `type='packing'` moves `stok_gudang` → `stok_packing` (`total_stok` unchanged)
+  - Outbound deducts from both `stok_packing` AND `total_stok`; validates `total_stok >= quantity` first, then `stok_packing >= quantity` (separate error messages)
 - **Destroy does NOT reverse stock** — deleting a `BarangMasuk`, `Transaksi`, or `TransaksiKeluar` does not revert stock adjustments
-- **Migrations**: 14 total (includes `cache`, `jobs`, `sessions` tables)
-- **Models** (8): `User`, `Role`, `Barang`, `BarangMasuk`, `Transaksi`, `TransaksiKeluar`, `Supplier`, `Toko` — each has a Factory
-- **Views**: 20+ Blade files under `layouts/`, `auth/`, `barangs/`, `barang-masuk/`, `transaksi/`, `admin/{users,tokos,suppliers}/`
+- **Models** (9): `User`, `Role`, `Barang`, `BarangToko` (Pivot), `BarangMasuk`, `Transaksi`, `TransaksiKeluar`, `Supplier`, `Toko` — each has a Factory
+- **Migrations**: 17 total (includes `cache`, `jobs`, sessions via default users migration)
+- **Views**: 30+ Blade files under `layouts/`, `auth/`, `barangs/`, `barang-masuk/`, `transaksi/`, `admin/{users,tokos,suppliers}/`, `vendor/pagination/`
 - **Routes**: `routes/web.php` only (no API routes). Login throttled at 5 attempts/min (`throttle:5,1`). Guest: login. Auth: dashboard, barangs CRUD, barang-masuk (2 flows), transaksi (create/history/cetak/destroy), admin group (`/admin/*`, middleware: `admin`).
 - **Security**: `AddSecurityHeaders` global middleware sets CSP with nonces, removes `X-Powered-By`; nonce shared via `$cspNonce` view variable. All inline `<script>` tags must include `nonce="{{ $cspNonce }}"`.
 - **Admin panel** (`/admin/*`): CRUD for users, tokos, suppliers — gated by `admin` middleware alias
@@ -40,7 +43,7 @@ Order: `lint (pint) -> test`
 - **Tests**: Only Laravel boilerplate `ExampleTest` files exist (Unit + Feature)
 - **Timezone**: History views use `Asia/Jakarta` with UTC conversion for date filtering
 
-## Conventions
+## Conventions & gotchas
 
 - **No public registration** — accounts created via admin panel or DB only
 - **No Pest** — PHPUnit (Unit + Feature suites); in-memory SQLite per `phpunit.xml`
@@ -52,9 +55,12 @@ Order: `lint (pint) -> test`
 - **Fonts**: Inter (sans) body, JetBrains Mono (mono) headings/labels
 - **JS behaviors** (vanilla JS in `app.js`): `data-auto-submit` attribute auto-submits `<form>` on `change`; `data-confirm` shows `confirm()` dialog on submit
 - **Custom sort** on `Barang` index: `?sort=nama`, `?sort=kode_asc`, `?sort=kode_desc` (parses numeric suffix after `-` in `kode_barang`)
-- **Quantity validation**: int > 0; outbound checks `stok_packing >= quantity` in controller (not form request)
+- **Quantity validation**: int > 0; outbound stock checks in controller (not form request)
 - **`.npmrc` has `ignore-scripts=true`** — always use `npm install --ignore-scripts`
 - **Indentation**: 4 spaces PHP, 2 spaces YAML (`.editorconfig`)
+- **TransaksiKeluar** stores `stok_awal_snapshot` and `harga_snapshot` at sale time (snapshots from `barang_toko` at that moment)
+- **BarangMasuk** has a `type` column: `'supplier'` or `'packing'`; `supplier_id` is nullable for packing entries
+- **Barang create/edit form** includes `stok_gudang`, `stok_packing`, `stock_threshold`, and `harga` — all stored on the `barang_toko` pivot
 
 ## Testing
 
@@ -65,7 +71,7 @@ php artisan test tests/Unit/SomeTest.php
 ```
 
 - In-memory SQLite (configured in `phpunit.xml`)
-- Factories exist for all 8 models — use them when writing tests
+- Factories exist for all 9 models — use them when writing tests
 - `.phpunit.result.cache` is gitignored
 
 ## Key files
